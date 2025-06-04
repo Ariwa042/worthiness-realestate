@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Properties - Real Estate{% endblock %}
+
+{% block extra_css %}
+<style>
+    .property-card {
+        transition: transform 0.2s;
+    }
+    .property-card:hover {
+        transform: translateY(-5px);
+    }
+    .property-image {
+        height: 200px;
+        object-fit: cover;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1>Properties</h1>
+    </div>
+    <div class="col-auto">
+        <a href="{% url 'property:property_search' %}" class="btn btn-primary">Advanced Search</a>
+    </div>
+</div>
+
+<div class="row g-4">
+    {% for property in properties %}
+    <div class="col-md-4">
+        <div class="card property-card h-100">
+            {% if property.images.exists %}
+            <img src="{{ property.images.first.image.url }}" class="card-img-top property-image" alt="{{ property.title }}">
+            {% endif %}
+            <div class="card-body">
+                <h5 class="card-title">{{ property.title }}</h5>
+                <p class="card-text text-muted">{{ property.get_property_type_display }} - {{ property.get_listing_type_display }}</p>
+                <p class="card-text">£{{ property.price }}</p>
+                <ul class="list-unstyled">
+                    {% if property.bedrooms %}
+                    <li>{{ property.bedrooms }} bedrooms</li>
+                    {% endif %}
+                    {% if property.bathrooms %}
+                    <li>{{ property.bathrooms }} bathrooms</li>
+                    {% endif %}
+                </ul>
+                <a href="{% url 'property:property_detail' property.slug %}" class="btn btn-primary">View Details</a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col">
+        <p>No properties found.</p>
+    </div>
+    {% endfor %}
+</div>
+
+{% if is_paginated %}
+<nav class="mt-4">
+    <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?page=1">&laquo; First</a>
+        </li>
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+        </li>
+        {% endif %}
+
+        <li class="page-item disabled">
+            <span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+        </li>
+
+        {% if page_obj.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+        </li>
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last &raquo;</a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: #f8f9fa; padding: 20px; margin-bottom: 20px; }
+        .content { padding: 20px; }
+        .footer { text-align: center; margin-top: 20px; font-size: 12px; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Valuation Request Confirmation</h2>
+        </div>
+        <div class="content">
+            <p>Dear {{ valuation.name }},</p>
+            
+            <p>Thank you for requesting a property valuation. We have received your request and one of our property experts will be in touch with you shortly.</p>
+            
+            <h3>Your Request Details:</h3>
+            <p><strong>Property Address:</strong><br>
+                {{ valuation.street_address }}<br>
+                {{ valuation.city }}, {{ valuation.state }} {{ valuation.postal_code }}
+            </p>
+            
+            <p><strong>Property Type:</strong> {{ valuation.get_property_type_display }}</p>
+            {% if valuation.bedrooms %}
+            <p><strong>Bedrooms:</strong> {{ valuation.bedrooms }}</p>
+            {% endif %}
+            
+            <p>If you need to discuss your valuation request, please don't hesitate to contact us at {{ valuation.branch.phone }} or reply to this email.</p>
+        </div>
+        <div class="footer">
+            <p>This is an automated confirmation of your valuation request.</p>
+        </div>
+    </div>
+</body>
+</html>

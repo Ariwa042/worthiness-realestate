@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Welcome to Real Estate{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row align-items-center">
+        <div class="col-md-6">
+            <h1 class="display-4 mb-4">Find Your Dream Property</h1>
+            <p class="lead mb-4">Browse our extensive collection of properties for sale and rent. 
+                Whether you're looking for a new home or an investment opportunity, we've got you covered.</p>
+            <div class="d-grid gap-2 d-md-flex">
+                <a href="{% url 'property:property_search' %}" class="btn btn-primary btn-lg">Search Properties</a>
+                <a href="{% url 'core:request_valuation' %}" class="btn btn-outline-primary btn-lg">Request Valuation</a>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <img src="{% static 'img/hero-image.jpg' %}" alt="Real Estate" class="img-fluid rounded">
+        </div>
+    </div>
+
+    <div class="row mt-5">
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h3>Property Search</h3>
+                    <p>Find your perfect property using our advanced search filters.</p>
+                    <a href="{% url 'property:property_search' %}" class="btn btn-primary">Start Searching</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h3>Property Valuation</h3>
+                    <p>Get a professional valuation of your property.</p>
+                    <a href="{% url 'core:request_valuation' %}" class="btn btn-primary">Request Valuation</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h3>Our Branches</h3>
+                    <p>Find your nearest branch and get in touch with our experts.</p>
+                    <a href="{% url 'core:branch_list' %}" class="btn btn-primary">View Branches</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: #f8f9fa; padding: 20px; margin-bottom: 20px; }
+        .content { padding: 20px; }
+        .footer { text-align: center; margin-top: 20px; font-size: 12px; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Viewing Appointment Confirmation</h2>
+        </div>
+        <div class="content">
+            <p>Dear {{ appointment.first_name }},</p>
+            
+            <p>Thank you for scheduling a viewing appointment. Your appointment details are as follows:</p>
+            
+            <h3>Property Details:</h3>
+            <p><strong>Property:</strong> {{ appointment.property.title }}</p>
+            <p><strong>Address:</strong><br>
+                {{ appointment.property.street_address }}<br>
+                {{ appointment.property.city }}, {{ appointment.property.state }} {{ appointment.property.postal_code }}
+            </p>
+            
+            <h3>Appointment Details:</h3>
+            <p><strong>Date:</strong> {{ appointment.preferred_date }}</p>
+            <p><strong>Time:</strong> {{ appointment.preferred_time }}</p>
+            
+            <p>One of our agents will contact you to confirm this appointment time. If you need to make any changes to your appointment, please contact us as soon as possible.</p>
+            
+            <p>If you need immediate assistance, please don't hesitate to call us.</p>
+        </div>
+        <div class="footer">
+            <p>This is an automated confirmation of your viewing appointment.</p>
+        </div>
+    </div>
+</body>
+</html>

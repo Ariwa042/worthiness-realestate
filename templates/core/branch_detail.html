@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ branch.name }} - Real Estate{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-md-8">
+            <h1 class="mb-4">{{ branch.name }}</h1>
+            
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h4>Contact Information</h4>
+                    <p><strong>Address:</strong><br>{{ branch.address }}</p>
+                    <p><strong>Phone:</strong> {{ branch.phone }}</p>
+                    <p><strong>Email:</strong> {{ branch.email }}</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <h4>Location</h4>
+                    <div id="map" style="height: 400px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h4>Recent Valuation Requests</h4>
+                    {% for request in valuation_requests %}
+                    <div class="mb-3 pb-3 border-bottom">
+                        <p class="mb-1"><strong>{{ request.name }}</strong></p>
+                        <p class="mb-1">{{ request.get_property_type_display }}</p>
+                        <p class="mb-1 text-muted small">{{ request.created_at|date:"d M Y" }}</p>
+                    </div>
+                    {% empty %}
+                    <p>No recent valuation requests.</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <h4>Request a Valuation</h4>
+                    <p>Interested in knowing your property's value?</p>
+                    <a href="{% url 'core:request_valuation' %}?branch={{ branch.id }}" 
+                       class="btn btn-primary w-100">Request Valuation</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&callback=initMap" 
+        async defer></script>
+<script>
+function initMap() {
+    const map = new google.maps.Map(document.getElementById("map"), {
+        zoom: 15,
+        center: { 
+            lat: {{ branch.latitude }}, 
+            lng: {{ branch.longitude }} 
+        }
+    });
+
+    new google.maps.Marker({
+        position: { 
+            lat: {{ branch.latitude }}, 
+            lng: {{ branch.longitude }} 
+        },
+        map: map,
+        title: "{{ branch.name }}"
+    });
+}
+</script>
+{% endblock %}

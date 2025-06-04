@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ property.title }} - Real Estate{% endblock %}
+
+{% block extra_css %}
+{% load static %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css"/>
+<style>
+    .gallery-thumbnail {
+        width: 100%;
+        height: 150px;
+        object-fit: cover;
+        cursor: pointer;
+    }
+    .main-image {
+        width: 100%;
+        height: 400px;
+        object-fit: cover;
+    }
+    #map {
+        height: 400px;
+        width: 100%;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+{% if messages %}
+<div class="container mb-4">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="row">
+    <div class="col-md-8">
+        {% if property.images.exists %}
+        <div class="position-relative">
+            <img src="{{ property.images.first.image.url }}" class="main-image mb-3" alt="{{ property.title }}">
+        </div>
+        <div class="row g-2 mb-4">
+            {% for image in property.images.all %}
+            <div class="col-md-3">
+                <a href="{{ image.image.url }}" data-fancybox="gallery">
+                    <img src="{{ image.image.url }}" class="gallery-thumbnail" alt="Property image {{ forloop.counter }}">
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <h2>{{ property.title }}</h2>
+                <p class="h4 text-primary mb-3">£{{ property.price }}</p>
+                
+                <div class="row mb-4">
+                    <div class="col-sm-6">
+                        <p><strong>Property Type:</strong> {{ property.get_property_type_display }}</p>
+                        <p><strong>Listing Type:</strong> {{ property.get_listing_type_display }}</p>
+                        {% if property.bedrooms %}
+                        <p><strong>Bedrooms:</strong> {{ property.bedrooms }}</p>
+                        {% endif %}
+                    </div>
+                    <div class="col-sm-6">
+                        {% if property.bathrooms %}
+                        <p><strong>Bathrooms:</strong> {{ property.bathrooms }}</p>
+                        {% endif %}
+                        <p><strong>Status:</strong> {{ property.get_property_status_display }}</p>
+                    </div>
+                </div>
+
+                <h3>Description</h3>
+                <p>{{ property.description }}</p>
+
+                {% if property.floor_plan_image %}
+                <h3>Floor Plan</h3>
+                <img src="{{ property.floor_plan_image.url }}" class="img-fluid mb-3" alt="Floor Plan">
+                {% endif %}
+
+                {% if property.epc_image %}
+                <h3>EPC Rating</h3>
+                <img src="{{ property.epc_image.url }}" class="img-fluid mb-3" alt="EPC Rating">
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-body">                <h3>Location</h3>
+                <p>{{ property.street_address }}</p>
+                <p>{{ property.city }}, {{ property.postal_code }}</p>
+                {% if coordinates %}
+                <div id="map"></div>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if property.property_status == 'available' %}
+        <div class="card">
+            <div class="card-body">                <h3>Request Viewing</h3>
+                <form method="post" action="">
+                    {% csrf_token %}
+                    {% for field in form %}
+                    <div class="mb-3">
+                        <label for="{{ field.id_for_label }}" class="form-label">
+                            {{ field.label }}{% if field.field.required %}*{% endif %}
+                        </label>
+                        {{ field }}
+                        {% if field.help_text %}
+                        <div class="form-text">{{ field.help_text }}</div>
+                        {% endif %}
+                        {% if field.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ field.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                    <p class="text-muted small mb-3">* Required fields</p>
+                    <button type="submit" class="btn btn-primary w-100">Request Viewing</button>
+                </form>
+            </div>
+        </div>
+        {% else %}
+        <div class="card">
+            <div class="card-body">
+                <div class="alert alert-info mb-0">
+                    <h4 class="alert-heading">Property Not Available</h4>
+                    <p>This property is currently {{ property.get_property_status_display|lower }}. Please check our other available properties or contact us for more information.</p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    {% if coordinates %}
+    const map = L.map('map').setView([{{ coordinates.0|stringformat:"f" }}, {{ coordinates.1|stringformat:"f" }}], 15);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+    L.marker([{{ coordinates.0|stringformat:"f" }}, {{ coordinates.1|stringformat:"f" }}])
+        .addTo(map)
+        .bindPopup("{{ property.title|escapejs }}");
+    {% endif %}
+    
+    Fancybox.bind("[data-fancybox]", {});
+});
+</script>
+{% endblock %}

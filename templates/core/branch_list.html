@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title %}Our Branches - Real Estate{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4">Our Branches</h1>
+    
+    <div class="row g-4">
+        {% for branch in branches %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">{{ branch.name }}</h5>
+                    <p class="card-text">
+                        <strong>Address:</strong><br>
+                        {{ branch.address }}
+                    </p>
+                    <p class="card-text">
+                        <strong>Contact:</strong><br>
+                        Phone: {{ branch.phone }}<br>
+                        Email: {{ branch.email }}
+                    </p>
+                    <a href="{% url 'core:branch_detail' branch.id %}" class="btn btn-primary">View Details</a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col">
+            <p>No branches found.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

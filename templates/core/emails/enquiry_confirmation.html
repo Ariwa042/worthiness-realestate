@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: #f8f9fa; padding: 20px; margin-bottom: 20px; }
+        .content { padding: 20px; }
+        .footer { text-align: center; margin-top: 20px; font-size: 12px; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Property Enquiry Confirmation</h2>
+        </div>
+        <div class="content">
+            <p>Dear {{ enquiry.name }},</p>
+            
+            <p>Thank you for your enquiry about the following property:</p>
+            
+            <h3>Property Details:</h3>
+            <p><strong>Property:</strong> {{ enquiry.property.title }}</p>
+            <p><strong>Address:</strong><br>
+                {{ enquiry.property.street_address }}<br>
+                {{ enquiry.property.city }}, {{ enquiry.property.state }} {{ enquiry.property.postal_code }}
+            </p>
+            
+            <p>One of our property experts will be in touch with you shortly to discuss your enquiry.</p>
+            
+            <p>If you need immediate assistance, please don't hesitate to call us.</p>
+        </div>
+        <div class="footer">
+            <p>This is an automated confirmation of your property enquiry.</p>
+        </div>
+    </div>
+</body>
+</html>
