@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Branch, PropertyEnquiry, ValuationRequest, Page, Appointments
+from .models import Branch, PropertyEnquiry, ValuationRequest, Appointments
 
 @admin.register(Branch)
 class BranchAdmin(admin.ModelAdmin):
@@ -58,27 +58,6 @@ class ValuationRequestAdmin(admin.ModelAdmin):
         }),
         ('Additional Information', {
             'fields': ('message', 'branch', ('created_at', 'updated_at'))
-        })
-    )
-
-@admin.register(Page)
-class PageAdmin(admin.ModelAdmin):
-    list_display = ['title', 'slug', 'published', 'updated_at']
-    list_filter = ['published']
-    search_fields = ['title', 'content']
-    readonly_fields = ['created_at', 'updated_at']
-    list_editable = ['published']
-    prepopulated_fields = {'slug': ('title',)}
-    
-    fieldsets = (
-        (None, {
-            'fields': ('title', 'slug', 'content')
-        }),
-        ('SEO', {
-            'fields': ('meta_description', 'featured_image')
-        }),
-        ('Publication', {
-            'fields': ('published', ('created_at', 'updated_at'))
         })
     )
 

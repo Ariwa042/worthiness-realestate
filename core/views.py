@@ -150,63 +150,31 @@ def submit_property_enquiry(request):
             messages.error(request, 'Please correct the errors in the form.')
             return redirect('property:property_detail', slug=request.POST.get('property_slug'))
 
-def submit_appointment(request):
+def schedule_appointment(request, slug):
+    property = get_object_or_404(Property, slug=slug)
     if request.method == 'POST':
         form = AppointmentForm(request.POST)
         if form.is_valid():
             try:
                 appointment = form.save(commit=False)
-                property_id = request.POST.get('property_id')
-                appointment.property = get_object_or_404(Property, id=property_id)
+                appointment.property = property
                 appointment.save()
-                
-                # Send email notifications
-                send_appointment_email(appointment)
-                
-                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                    return JsonResponse({
-                        'status': 'success',
-                        'message': 'Your viewing appointment has been scheduled. We will contact you to confirm.'
-                    })
+                #send_appointment_email(appointment)
                 messages.success(request, 'Your viewing appointment has been scheduled. We will contact you to confirm.')
-                return redirect('property:property_detail', slug=appointment.property.slug)
+                return redirect('property:property_detail', slug=property.slug)
             except Exception as e:
-                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                    return JsonResponse({
-                        'status': 'error',
-                        'message': 'An error occurred while scheduling your appointment.'
-                    }, status=400)
-                messages.error(request, 'An error occurred while scheduling your appointment.')
-                return redirect('property:property_detail', slug=request.POST.get('property_slug'))
-        else:
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return JsonResponse({
-                    'status': 'error',
-                    'message': 'Please correct the errors in the form.',
-                    'errors': form.errors
-                }, status=400)
-            messages.error(request, 'Please correct the errors in the form.')
-            return redirect('property:property_detail', slug=request.POST.get('property_slug'))
-
-def update_appointment_status(request, appointment_id):
-    appointment = get_object_or_404(Appointments, id=appointment_id)
-    
-    if request.method == 'POST':
-        action = request.POST.get('action')
-        if action == 'confirm':
-            appointment.status = 'confirmed'
-        elif action == 'cancel':
-            appointment.status = 'cancelled'
-        
-        appointment.save()
-        
-        # Send status update email
-        send_appointment_status_update_email(appointment)
-        
-        messages.success(request, f'Appointment has been {appointment.get_status_display().lower()}.')
-        return redirect('core:manage_appointment', appointment_id=appointment_id)
-    
-    return render(request, 'core/manage_appointment.html', {'appointment': appointment})
+                import traceback
+                print('Error scheduling appointment:', e)
+                traceback.print_exc()
+                messages.error(request, f'An error occurred while scheduling your appointment: {e}')
+        # If form is invalid or exception, fall through to render form with errors
+    else:
+        form = AppointmentForm()
+    context = {
+        'form': form,
+        'property': property
+    }
+    return render(request, 'core/schedule_appointment.html', context)
 
 def request_valuation(request):
     branches = Branch.objects.all()

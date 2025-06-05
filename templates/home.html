@@ -1,53 +1,589 @@
 {% extends 'base.html' %}
 {% load static %}
-
+{% load humanize %}
 {% block title %}Welcome to Real Estate{% endblock %}
 
-{% block content %}
-<div class="container py-5">
-    <div class="row align-items-center">
-        <div class="col-md-6">
-            <h1 class="display-4 mb-4">Find Your Dream Property</h1>
-            <p class="lead mb-4">Browse our extensive collection of properties for sale and rent. 
-                Whether you're looking for a new home or an investment opportunity, we've got you covered.</p>
-            <div class="d-grid gap-2 d-md-flex">
-                <a href="{% url 'property:property_search' %}" class="btn btn-primary btn-lg">Search Properties</a>
-                <a href="{% url 'core:request_valuation' %}" class="btn btn-outline-primary btn-lg">Request Valuation</a>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <img src="{% static 'img/hero-image.jpg' %}" alt="Real Estate" class="img-fluid rounded">
-        </div>
-    </div>
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+<style>
+    .hero-section {
+        background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('{% static "img/hero-image.jpg" %}');
+        background-size: cover;
+        background-position: center;
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+    }
+    .service-card {
+        padding: 2rem;
+        text-align: center;
+        background: white;
+    }
+    .service-card i {
+        font-size: 2.5rem;
+        color: var(--accent-color);
+        margin-bottom: 1rem;
+    }
+    .testimonial-card {
+        background: var(--light-bg);
+        border-radius: 10px;
+        padding: 2rem;
+    }
+    .testimonial-card .stars {
+        color: #ffc107;
+    }
+    .cta-banner {
+        background: var(--accent-color);
+        color: white;
+    }
+    .featured-property img {
+        height: 250px;
+        object-fit: cover;
+    }
+    .quick-search-panel {
+        box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    }
+    .quick-search-panel .nav-pills .nav-link {
+        color: #6c757d;
+        padding: 0.75rem 2rem;
+        border-radius: 50px;
+        margin-right: 1rem;
+    }
+    .quick-search-panel .nav-pills .nav-link.active {
+        background-color: var(--bs-primary);
+        color: white;
+    }
+    .quick-search-panel .form-select,
+    .quick-search-panel .form-control {
+        padding: 0.75rem 1rem;
+        border-radius: 4px;
+    }
 
-    <div class="row mt-5">
-        <div class="col-md-4">
-            <div class="card h-100">
-                <div class="card-body">
-                    <h3>Property Search</h3>
-                    <p>Find your perfect property using our advanced search filters.</p>
-                    <a href="{% url 'property:property_search' %}" class="btn btn-primary">Start Searching</a>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card h-100">
-                <div class="card-body">
-                    <h3>Property Valuation</h3>
-                    <p>Get a professional valuation of your property.</p>
-                    <a href="{% url 'core:request_valuation' %}" class="btn btn-primary">Request Valuation</a>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card h-100">
-                <div class="card-body">
-                    <h3>Our Branches</h3>
-                    <p>Find your nearest branch and get in touch with our experts.</p>
-                    <a href="{% url 'core:branch_list' %}" class="btn btn-primary">View Branches</a>
+    /* Featured Properties Carousel */
+    .featured-properties-slider .carousel-control-prev,
+    .featured-properties-slider .carousel-control-next {
+        width: 40px;
+        height: 40px;
+        background: rgba(0,0,0,0.5);
+        border-radius: 50%;
+        top: 50%;
+        transform: translateY(-50%);
+        opacity: 0.8;
+    }
+
+    .featured-properties-slider .carousel-control-prev {
+        left: -20px;
+    }
+
+    .featured-properties-slider .carousel-control-next {
+        right: -20px;
+    }
+
+    .featured-properties-slider .carousel-control-prev:hover,
+    .featured-properties-slider .carousel-control-next:hover {
+        opacity: 1;
+        background: rgba(0,0,0,0.7);
+    }
+
+    .featured-properties-slider .carousel {
+        padding: 0 30px;
+    }
+
+    .featured-property {
+        transition: transform 0.3s ease;
+        margin-bottom: 1rem;
+    }
+
+    .featured-property:hover {
+        transform: translateY(-5px);
+    }
+
+    .carousel-item {
+        padding: 1rem;
+    }
+
+    .featured-properties-section {
+        background-color: #f8f9fa;
+    }
+    
+    .featured-properties-slider {
+        padding: 20px 40px;
+    }
+
+    .property-card {
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
+        margin: 10px;
+    }
+
+    .property-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .property-image {
+        position: relative;
+        height: 200px;
+        overflow: hidden;
+        border-radius: 8px 8px 0 0;
+    }
+
+    .property-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .property-tag {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: #007bff;
+        color: white;
+        padding: 5px 10px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+    }
+
+    .property-price {
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        background: rgba(0,0,0,0.7);
+        color: white;
+        padding: 5px 10px;
+        border-radius: 4px;
+        font-weight: bold;
+    }
+
+    .property-content {
+        padding: 20px;
+    }
+
+    .property-title {
+        font-size: 1.2rem;
+        margin-bottom: 10px;
+        color: #333;
+    }
+
+    .property-location {
+        color: #666;
+        font-size: 0.9rem;
+        margin-bottom: 15px;
+    }
+
+    .property-features {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 15px;
+        color: #666;
+        font-size: 0.9rem;
+    }
+
+    .property-features span i {
+        margin-right: 5px;
+    }
+
+    /* Swiper custom styles */
+    .swiper-button-prev,
+    .swiper-button-next {
+        width: 40px;
+        height: 40px;
+        background: rgba(0,0,0,0.5);
+        border-radius: 50%;
+        color: white;
+    }
+
+    .swiper-button-prev:after,
+    .swiper-button-next:after {
+        font-size: 20px;
+    }
+
+    .swiper-pagination-bullet {
+        width: 10px;
+        height: 10px;
+        background: #007bff;
+    }
+
+    @media (max-width: 768px) {
+        .property-features {
+            flex-direction: column;
+            gap: 5px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section text-white text-center text-md-start">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8 mx-auto">
+                <h1 class="display-3 fw-bold mb-4">Find Your Ideal Property<br>With Trusted Local Agents</h1>
+                <p class="lead mb-4">Your journey to the perfect property begins here. Expert guidance every step of the way.</p>
+                <div class="d-grid gap-3 d-sm-flex justify-content-sm-center justify-content-md-start">
+                    <a href="{% url 'property:property_search' %}" class="btn btn-primary btn-lg px-5 py-3">
+                        Start Property Search
+                    </a>
+                    <a href="{% url 'core:request_valuation' %}" class="btn btn-outline-light btn-lg px-5 py-3">
+                        Book a Free Valuation
+                    </a>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</section>
+
+<!-- Quick Search Panel -->
+<section class="quick-search-panel py-4 bg-white" style="margin-top: -50px; position: relative; z-index: 100;">
+    <div class="container">
+        <div class="card shadow">
+            <div class="card-body p-4">
+                <form method="get" action="{% url 'property:property_search' %}" id="quickSearchForm">
+                    <ul class="nav nav-pills mb-4" id="propertyTypeTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="buy-tab" data-bs-toggle="pill" data-bs-target="#buy" type="button" role="tab" aria-controls="buy" aria-selected="true">Buy</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="rent-tab" data-bs-toggle="pill" data-bs-target="#rent" type="button" role="tab" aria-controls="rent" aria-selected="false">Rent</button>
+                        </li>
+                    </ul>
+
+                    <input type="hidden" name="listing" value="sale" id="listingType">
+
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <select name="max_price" class="form-select">
+                                <option value="">Max Price</option>
+                                <option value="100000">Up to £100,000</option>
+                                <option value="200000">Up to £200,000</option>
+                                <option value="500000">Up to £500,000</option>
+                                <option value="1000000">Up to £1,000,000</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <select name="bedrooms" class="form-select">
+                                <option value="">Beds (Min)</option>
+                                {% for i in "12345" %}
+                                <option value="{{ i }}">{{ i }}+ beds</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="input-group">
+                                <input type="text" class="form-control" name="city" placeholder="Location">
+                                <button class="btn btn-primary" type="submit">
+                                    <i class="bi bi-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- Featured Properties -->
+<section class="py-5">
+    <div class="container">
+        <h2 class="text-center mb-5">Featured Properties</h2>
+        {% if featured_properties %}
+        <div class="featured-properties-section py-5">
+            <div class="container">
+                <div class="row mb-4">
+                    <div class="col">
+                        <h2 class="section-title">Featured Properties</h2>
+                    </div>
+                </div>
+                <!-- Swiper container -->
+                <div class="swiper featured-properties-slider">
+                    <div class="swiper-wrapper">
+                        {% for property in featured_properties %}
+                        <div class="swiper-slide">
+                            <div class="property-card">
+                                <div class="property-image">
+                                    {% if property.images.first %}
+                                    <img src="{{ property.images.first.image.url }}" alt="{{ property.title }}" class="img-fluid">
+                                    {% endif %}
+                                    <div class="property-tag">{{ property.get_listing_type_display }}</div>
+                                    <div class="property-price">${{ property.price|intcomma }}</div>
+                                </div>
+                                <div class="property-content">
+                                    <h3 class="property-title">{{ property.title }}</h3>
+                                    <p class="property-location"><i class="bi bi-geo-alt"></i> {{ property.location }}</p>
+                                    <div class="property-features">
+                                        <span><i class="bi bi-house-door"></i> {{ property.area }} sqft</span>
+                                        <span><i class="bi bi-door-open"></i> {{ property.bedrooms }} Beds</span>
+                                        <span><i class="bi bi-droplet"></i> {{ property.bathrooms }} Baths</span>
+                                    </div>
+                                    <a href="{% url 'property:property_detail' property.slug %}" class="btn btn-primary mt-3">View Details</a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <!-- Swiper navigation -->
+                    <div class="swiper-button-prev"></div>
+                    <div class="swiper-button-next"></div>
+                    <!-- Swiper pagination -->
+                    <div class="swiper-pagination"></div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="text-center">
+            <p>No featured properties available at the moment.</p>
+        </div>
+        {% endif %}
+        <div class="text-center mt-4">
+            <a href="{% url 'property:property_list' %}" class="btn btn-lg btn-outline-primary">Browse All Properties</a>
+        </div>
+    </div>
+</section>
+<!-- Services Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="service-card h-100">
+                    <i class="bi bi-house-door"></i>
+                    <h3 class="h4 mb-3">Local Market Experts</h3>
+                    <p class="mb-4">In-depth knowledge of your local property market for accurate valuations and faster sales.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="service-card h-100">
+                    <i class="bi bi-person-check"></i>
+                    <h3 class="h4 mb-3">Dedicated Property Managers</h3>
+                    <p class="mb-4">Personal support throughout your property journey, from viewing to completion.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="service-card h-100">
+                    <i class="bi bi-calculator"></i>
+                    <h3 class="h4 mb-3">Free Property Valuations</h3>
+                    <p class="mb-4">Get an accurate valuation of your property with no obligations.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Valuation CTA -->
+<section class="cta-banner py-5">
+    <div class="container text-center">
+        <h2 class="mb-4">Wondering How Much Your Property is Worth?</h2>
+        <p class="lead mb-4">Your locally based valuer will personally visit you and assess the value of your property, taking into account the locality, condition, additions and improvements while explaining our strategy to market your property to achieve the best possible price.</p>
+        <a href="{% url 'core:request_valuation' %}" class="btn btn-light btn-lg">Book Your Free Valuation</a>
+    </div>
+</section>
+
+<!-- Information Cards -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h3 class="h4 mb-3">Mortgage Help</h3>
+                        <p class="mb-3">Get expert mortgage advice and find the best rates for your new home.</p>
+                        <a href="#" class="btn btn-outline-primary">Learn More</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h3 class="h4 mb-3">Landlord Advice</h3>
+                        <p class="mb-3">Professional guidance for property investors and landlords.</p>
+                        <a href="#" class="btn btn-outline-primary">Learn More</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h3 class="h4 mb-3">About Us</h3>
+                        <p class="mb-3">Learn about our history and commitment to exceptional service.</p>
+                        <a href="#" class="btn btn-outline-primary">Learn More</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials -->
+<section class="py-5">
+    <div class="container">
+        <h2 class="text-center mb-5">What Our Clients Say</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="testimonial-card">
+                    <div class="stars mb-3">
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                    </div>
+                    <p class="mb-3">"Excellent service from start to finish. The team was professional and made selling our home stress-free."</p>
+                    <div class="fw-bold">John Smith</div>
+                    <div class="text-muted">Property Seller</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="testimonial-card">
+                    <div class="stars mb-3">
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                    </div>
+                    <p class="mb-3">"Found our dream home thanks to the dedicated team. Their local knowledge was invaluable."</p>
+                    <div class="fw-bold">Sarah Johnson</div>
+                    <div class="text-muted">Property Buyer</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="testimonial-card">
+                    <div class="stars mb-3">
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                    </div>
+                    <p class="mb-3">"Great rental management service. Always responsive and professional in handling any issues."</p>
+                    <div class="fw-bold">David Williams</div>
+                    <div class="text-muted">Landlord</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Newsletter Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8 text-center">
+                <h2 class="mb-4">Stay Updated with the Latest Listings</h2>
+                <form class="row g-2 justify-content-center">
+                    <div class="col-auto flex-grow-1">
+                        <input type="email" class="form-control form-control-lg" placeholder="Enter your email">
+                    </div>
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-primary btn-lg">Subscribe</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle property type tab switching
+    const buyTab = document.getElementById('buy-tab');
+    const rentTab = document.getElementById('rent-tab');
+    const listingTypeInput = document.getElementById('listingType');
+
+    buyTab.addEventListener('click', function() {
+        listingTypeInput.value = 'sale';
+    });
+
+    rentTab.addEventListener('click', function() {
+        listingTypeInput.value = 'rent';
+    });
+
+    // Update price options based on listing type
+    function updatePriceOptions(listingType) {
+        const maxPriceSelect = document.querySelector('select[name="max_price"]');
+        maxPriceSelect.innerHTML = ''; // Clear existing options
+        
+        const defaultOption = document.createElement('option');
+        defaultOption.value = '';
+        defaultOption.textContent = 'Max Price';
+        maxPriceSelect.appendChild(defaultOption);
+
+        const prices = listingType === 'sale' 
+            ? [
+                ['100000', 'Up to £100,000'],
+                ['200000', 'Up to £200,000'],
+                ['300000', 'Up to £300,000'],
+                ['500000', 'Up to £500,000'],
+                ['750000', 'Up to £750,000'],
+                ['1000000', 'Up to £1,000,000'],
+                ['2000000', 'Up to £2,000,000']
+            ]
+            : [
+                ['500', 'Up to £500/month'],
+                ['750', 'Up to £750/month'],
+                ['1000', 'Up to £1,000/month'],
+                ['1500', 'Up to £1,500/month'],
+                ['2000', 'Up to £2,000/month'],
+                ['2500', 'Up to £2,500/month'],
+                ['3000', 'Up to £3,000/month']
+            ];
+
+        prices.forEach(([value, text]) => {
+            const option = document.createElement('option');
+            option.value = value;
+            option.textContent = text;
+            maxPriceSelect.appendChild(option);
+        });
+    }
+
+    // Update price options when tabs are clicked
+    buyTab.addEventListener('click', () => updatePriceOptions('sale'));
+    rentTab.addEventListener('click', () => updatePriceOptions('rent'));
+
+    // Initialize with sale prices
+    updatePriceOptions('sale');
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    const carousel = new bootstrap.Carousel(document.getElementById('featuredPropertiesCarousel'), {
+        interval: 5000,
+        touch: true
+    });
+});
+
+// Initialize Swiper for featured properties
+var swiper = new Swiper('.featured-properties-slider', {
+    slidesPerView: 1,
+    spaceBetween: 10,
+    navigation: {
+        nextEl: '.swiper-button-next',
+        prevEl: '.swiper-button-prev',
+    },
+    pagination: {
+        el: '.swiper-pagination',
+        clickable: true,
+    },
+    breakpoints: {
+        640: {
+            slidesPerView: 2,
+            spaceBetween: 20
+        },
+        768: {
+            slidesPerView: 3,
+            spaceBetween: 30
+        },
+        1024: {
+            slidesPerView: 4,
+            spaceBetween: 40
+        }
+    }
+});
+</script>
 {% endblock %}

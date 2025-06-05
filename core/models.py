@@ -101,23 +101,3 @@ class ValuationRequest(models.Model):
     def __str__(self):
         return f'Valuation request from {self.name} for {self.property_address}'
 
-class Page(models.Model):
-    title = models.CharField(max_length=200)
-    slug = models.SlugField(unique=True)
-    content = models.TextField()
-    meta_description = models.CharField(max_length=160, blank=True)
-    featured_image = models.ImageField(upload_to='pages/', blank=True)
-    published = models.BooleanField(default=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        ordering = ['title']
-
-    def __str__(self):
-        return self.title
-
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(self.title)
-        super().save(*args, **kwargs)
